@@ -362,6 +362,12 @@
     <None Include="Resources\Dial.png" />
     <None Include="Resources\minimize.png" />
     <None Include="Resources\BUET_LOGO.svg.png" />
+    <Content Include="LogFile\DecData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="LogFile\EncData.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="wakitalki.ico" />
     <Content Include="waki_0Ls_icon.ico" />
   </ItemGroup>
