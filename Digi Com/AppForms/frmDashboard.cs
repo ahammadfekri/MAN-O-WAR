@@ -626,7 +626,7 @@ namespace Digi_Com.AppForms
             try
             {
 
-                var s = Global.ReceivedCallerID;
+
 
                 using (FS = new FileStream(outputFilename + ".aes", FileMode.Append, FileAccess.Write))
                 {
