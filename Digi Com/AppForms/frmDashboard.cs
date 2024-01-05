@@ -656,7 +656,7 @@ namespace Digi_Com.AppForms
                         {
                             txtDisplay.Text = "File Received!";
                             txtDisplay.ScrollToCaret();
-                            btnPlayMessage.Enabled = true;
+                           // btnPlayMessage.Enabled = true;
                             wplayer.controls.stop();
                             wplayer.settings.setMode("loop", false);
                             //When Call Accepted
