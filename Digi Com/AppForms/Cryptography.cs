@@ -48,6 +48,7 @@ namespace Digi_Com.AppForms
         /// 
         public string FileEncrypt(string inputFile, string password)
         {
+            string secrateKey = string.Empty;
             string fileName = string.Empty;
             clsEncLibrary objEncDec2 = new clsEncLibrary();
             DataTable _data = _db.getScheduleListByDate(DateTime.Now.ToString("yyyy-MM-dd"));
@@ -57,7 +58,7 @@ namespace Digi_Com.AppForms
                 string callerCode = Global.personel_fingre_key_no;
                 DateTime truncatedDateTime = DateTime.Now;
                 string frequency = row["SCHEDULE_FREQ"].ToString();
-                string secrateKey = row["SCHEDULE_SECRET"].ToString();
+                 secrateKey = row["SCHEDULE_SECRET"].ToString();
                 string filePath = inputFile;// @"C:\CF\sampleFile\Free_Test_Data_100KB_PDF.pdf";
                 fileName = objEncDec2.FileEncrypt(filePath, callerCode, truncatedDateTime, frequency, secrateKey);
             }
@@ -73,7 +74,7 @@ namespace Digi_Com.AppForms
             //FileStream fsCrypt = new FileStream(inputFile + ".aes", FileMode.Create);
 
             ////convert password string to byte arrray
-            //byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+            //byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(secrateKey);
 
             ////Set Rijndael symmetric encryption algorithm
             //RijndaelManaged AES = new RijndaelManaged();
@@ -132,6 +133,7 @@ namespace Digi_Com.AppForms
         public void FileDecrypt(string inputFile, string outputFile, string password)
         {
             string fileName = string.Empty;
+            string secrateKey = string.Empty;
 
             clsEncLibrary objEncDec2 = new clsEncLibrary();
             DataTable _data = _db.getScheduleListByDate(DateTime.Now.ToString("yyyy-MM-dd"));
@@ -141,65 +143,65 @@ namespace Digi_Com.AppForms
                 string callerCode = Global.personel_fingre_key_no;
                 DateTime truncatedDateTime = DateTime.Now;
                 string frequency = row["SCHEDULE_FREQ"].ToString();
-                string secrateKey = row["SCHEDULE_SECRET"].ToString();
+                secrateKey = row["SCHEDULE_SECRET"].ToString();
                 string filePath = inputFile;// @"C:\CF\sampleFile\Free_Test_Data_100KB_PDF.pdf";
-                fileName = objEncDec2.FileDeccrypt(filePath);
+                //fileName = objEncDec2.FileDeccrypt(filePath);
             }
 
 
 
-            //byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-            //byte[] salt = new byte[32];
+            byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(secrateKey);
+            byte[] salt = new byte[32];
 
-            //FileStream fsCrypt = new FileStream(inputFile, FileMode.Open);
-            //fsCrypt.Read(salt, 0, salt.Length);
+            FileStream fsCrypt = new FileStream(inputFile, FileMode.Open);
+            fsCrypt.Read(salt, 0, salt.Length);
 
-            //RijndaelManaged AES = new RijndaelManaged();
-            //AES.KeySize = 256;
-            //AES.BlockSize = 128;
-            //var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
-            //AES.Key = key.GetBytes(AES.KeySize / 8);
-            //AES.IV = key.GetBytes(AES.BlockSize / 8);
-            //AES.Padding = PaddingMode.PKCS7;
-            //AES.Mode = CipherMode.CFB;
+            RijndaelManaged AES = new RijndaelManaged();
+            AES.KeySize = 256;
+            AES.BlockSize = 128;
+            var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
+            AES.Key = key.GetBytes(AES.KeySize / 8);
+            AES.IV = key.GetBytes(AES.BlockSize / 8);
+            AES.Padding = PaddingMode.PKCS7;
+            AES.Mode = CipherMode.CFB;
 
-            //CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateDecryptor(), CryptoStreamMode.Read);
+            CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateDecryptor(), CryptoStreamMode.Read);
 
-            //FileStream fsOut = new FileStream(outputFile, FileMode.Create);
+            FileStream fsOut = new FileStream(outputFile, FileMode.Create);
 
-            //int read;
-            //byte[] buffer = new byte[1048576];
+            int read;
+            byte[] buffer = new byte[1048576];
 
-            //try
-            //{
-            //    while ((read = cs.Read(buffer, 0, buffer.Length)) > 0)
-            //    {
-            //        Application.DoEvents();
-            //        fsOut.Write(buffer, 0, read);
-            //    }
-            //}
-            //catch (CryptographicException ex_CryptographicException)
-            //{
-            //    Console.WriteLine("CryptographicException error: " + ex_CryptographicException.Message);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("Error: " + ex.Message);
-            //}
+            try
+            {
+                while ((read = cs.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    Application.DoEvents();
+                    fsOut.Write(buffer, 0, read);
+                }
+            }
+            catch (CryptographicException ex_CryptographicException)
+            {
+                Console.WriteLine("CryptographicException error: " + ex_CryptographicException.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
 
-            //try
-            //{
-            //    cs.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine("Error by closing CryptoStream: " + ex.Message);
-            //}
-            //finally
-            //{
-            //    fsOut.Close();
-            //    fsCrypt.Close();
-            //}
+            try
+            {
+                cs.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error by closing CryptoStream: " + ex.Message);
+            }
+            finally
+            {
+                fsOut.Close();
+                fsCrypt.Close();
+            }
         }
     }
 

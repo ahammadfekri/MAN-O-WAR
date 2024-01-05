@@ -112,22 +112,7 @@ namespace ManOWarEncLibrary
                     // Specify the path for the output WAV file
                     string outputWavFilePath = "path/to/your/outputfile.wav";
 
-                    byte[] wavFileBytes = File.ReadAllBytes(fileOriginal.FullName);
-
-                    // Convert the byte array to a string (This might not produce meaningful results)
-                    string wavFileContent = Encoding.UTF8.GetString(wavFileBytes);
-
-
-
-
-                    byte[] fileBytes = File.ReadAllBytes(fileOriginal.FullName);
-
-                    // Convert the byte array to a string
-                    string fileContent = Encoding.UTF8.GetString(fileBytes);
-
-
-
-                    string fileContentNRMString = File.ReadAllText(fileOriginal.FullName);
+                    string txtFileTring = File.ReadAllText(fileOriginal.FullName);
 
                     directoryPath = fileOriginal.Directory.FullName;
                     fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileOriginal.FullName);
@@ -136,7 +121,8 @@ namespace ManOWarEncLibrary
 
                     string outputPath = Path.Combine(directoryPath, fileNameWithoutExtension + "_FR#" + fileExtension + "_#RF" + "_SE#" + "___" + "#AT_" + ".aes");
 
-                    File.WriteAllText(outputPath, wavFileContent);
+                    File.WriteAllText(outputPath, txtFileTring);
+
                     strReturnValue = outputPath;
                 }
             }
