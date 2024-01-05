@@ -51,7 +51,7 @@ namespace Digi_Com.AppForms
             string secrateKey = string.Empty;
             string fileName = string.Empty;
             clsEncLibrary objEncDec2 = new clsEncLibrary();
-            DataTable _data = _db.getScheduleListByDate(DateTime.Now.ToString("yyyy-MM-dd"));
+            DataTable _data = _db.getScheduleListByDate(DateTime.Now.ToString("2024-01-07"));
             foreach (DataRow row in _data.Rows)
             {
 

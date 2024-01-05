@@ -31,6 +31,16 @@ namespace Digi_Com
         private static string _TodaysSecret = "0";
 
 
+        private static List<byte[]> _byteArrayList = new List<byte[]>();
+
+        public static List<byte[]> byteArrayList
+        {
+            get { return _byteArrayList; }
+            set { _byteArrayList = value; }
+        }
+
+
+
         private static string _personel_fingre_key_no = "0";
         public static string personel_fingre_key_no
         {

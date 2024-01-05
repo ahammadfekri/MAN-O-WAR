@@ -353,6 +353,7 @@ namespace Digi_Com.AppForms
                     #region Code 300 | When Other Party Accept Call
                     if (Convert.ToInt32(code) == 300)
                     {
+                        Global.byteArrayList = new List<byte[]>();
                         Global.isCallReceived = true;
                         Global.ReceivedCallerID = CallerID.ToString();
                         _db.writeLog("Call accepted by  " + CallerID.ToString());
@@ -626,6 +627,8 @@ namespace Digi_Com.AppForms
             try
             {
 
+                Global.byteArrayList.Add(inputData);
+                
 
 
                 using (FS = new FileStream(outputFilename + ".aes", FileMode.Append, FileAccess.Write))
