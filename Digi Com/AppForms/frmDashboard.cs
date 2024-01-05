@@ -628,7 +628,7 @@ namespace Digi_Com.AppForms
 
                 var s = Global.ReceivedCallerID;
 
-                using (FS = new FileStream(outputFilename + ".txt", FileMode.Append, FileAccess.Write))
+                using (FS = new FileStream(outputFilename + ".aes", FileMode.Append, FileAccess.Write))
                 {
                     receivedLength = receivedLength + inputData.Length;
 
@@ -641,7 +641,7 @@ namespace Digi_Com.AppForms
                         GCHandle gch = GCHandle.Alloc(Global.SecretKey, GCHandleType.Pinned);
 
                         // Decrypt the file
-                        security.FileDecrypt(outputFilename + ".txt", outputFilename, Global.SecretKey);
+                        security.FileDecrypt(outputFilename + ".aes", outputFilename, Global.SecretKey);
 
                         // To increase the security of the decryption, delete the used password from the memory !
                         ZeroMemory(gch.AddrOfPinnedObject(), Global.SecretKey.Length * 2);
