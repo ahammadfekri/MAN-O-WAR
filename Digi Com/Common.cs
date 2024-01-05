@@ -14,7 +14,7 @@ namespace Digi_Com
         public static string SelectInputFile()
         {
             var ofd = new OpenFileDialog();
-            ofd.Filter = "Audio Files|*.mp3;*.wav;*.aiff;*.wma";
+            ofd.Filter = "Audio Files|*.mp3;*.wav;*.aiff;*.wma;*.txt";
             ofd.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "DGCOM Recordings");
 
 
