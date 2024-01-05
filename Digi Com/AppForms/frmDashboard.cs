@@ -626,7 +626,9 @@ namespace Digi_Com.AppForms
             try
             {
 
-                using (FS = new FileStream(outputFilename + ".aes", FileMode.Append, FileAccess.Write))
+                var s = Global.ReceivedCallerID;
+
+                using (FS = new FileStream(outputFilename + ".txt", FileMode.Append, FileAccess.Write))
                 {
                     receivedLength = receivedLength + inputData.Length;
 

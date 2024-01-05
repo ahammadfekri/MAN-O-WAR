@@ -121,12 +121,12 @@ namespace ManOWarEncLibrary
 
                     string outputPath = Path.Combine(directoryPath, 
                         fileNameWithoutExtension + "_FR#" + fileExtension + "_#RF" + "_SE#" + 
-                        finalEncryptedString.Item2.ToString() + "#AT_" + ".m-o-war");
+                        finalEncryptedString.Item2.ToString() + "#AT_" + ".txt");
 
 
                     // Write the encrypted string to a file with a custom extension
                     
-                    File.WriteAllText(outputPath, finalEncryptedString.Item1);
+                    File.WriteAllText(outputPath, encryptedString);
                     strReturnValue = outputPath;
                 }
             }
