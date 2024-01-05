@@ -353,7 +353,7 @@ namespace Digi_Com.AppForms
                     #region Code 300 | When Other Party Accept Call
                     if (Convert.ToInt32(code) == 300)
                     {
-                        Global.byteArrayList = new List<byte[]>();
+                       
                         Global.isCallReceived = true;
                         Global.ReceivedCallerID = CallerID.ToString();
                         _db.writeLog("Call accepted by  " + CallerID.ToString());

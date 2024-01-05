@@ -148,6 +148,7 @@ namespace Digi_Com.AppForms
 
         private void btnAccept_Click(object sender, EventArgs e)
         {
+            Global.byteArrayList = new List<byte[]>();
             Resposne = 1;
             this.Close();
         }
