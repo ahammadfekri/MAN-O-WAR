@@ -106,21 +106,17 @@ namespace ManOWarEncLibrary
                 if (File.Exists(inputFileFullPath))
                 {
                     fileOriginal = new FileInfo(inputFileFullPath);
-                    byte[] fileBytes = File.ReadAllBytes(fileOriginal.FullName);
-                    encryptedString = Convert.ToBase64String(fileBytes);
+
+                    string fileContentNRMString = File.ReadAllText(fileOriginal.FullName);
 
                     directoryPath = fileOriginal.Directory.FullName;
                     fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileOriginal.FullName);
                     fileExtension = Path.GetExtension(fileOriginal.FullName);
                     fileSize = fileOriginal.Length;
 
-                    // Encrypt the string using the key
-                    var finalEncryptedString = EncryptMaster(callerCode, truncatedDateTime, frequency, secrateKey, encryptedString);
+                    string outputPath = Path.Combine(directoryPath, fileNameWithoutExtension + "_FR#" + fileExtension + "_#RF" + "_SE#" + "___" + "#AT_" + ".m-o-war");
 
-                    // Write the encrypted string to a file with a custom extension
-                    string outputPath = Path.Combine(directoryPath, fileNameWithoutExtension+ "_FR#" + fileExtension + "_#RF" + "_SE#" + finalEncryptedString.Item2.ToString() + "#AT_" + ".m-o-war");
-
-                    File.WriteAllText(outputPath, finalEncryptedString.Item1);
+                    File.WriteAllText(outputPath, fileContentNRMString);
                     strReturnValue = outputPath;
                 }
             }
@@ -128,7 +124,7 @@ namespace ManOWarEncLibrary
             {
                 throw ex;
             }
-            return "File has been Successfully saved";
+            return strReturnValue;
         }
 
 
@@ -156,10 +152,7 @@ namespace ManOWarEncLibrary
 
                 if (File.Exists(inputFileFullPath))
                 {
-
-
-                    
-
+                    string fileContentNRMString = File.ReadAllText(fileOriginal.FullName);
                     fileOriginal = new FileInfo(inputFileFullPath);
                     byte[] fileBytes = File.ReadAllBytes(fileOriginal.FullName);
                     encryptedString = Encoding.UTF8.GetString(fileBytes);
@@ -183,25 +176,17 @@ namespace ManOWarEncLibrary
 
                         string modifiedString = fileNameWithoutExtension.Replace(match.Value, "");
 
-                        if (keyParts.Length > 0)
-                        {
-                            revParaLength = int.Parse(keyParts);
-
-                            // Decrypt the string using the key
-                            string decryptedString = DecryptMaster(encryptedString, revParaLength);
-
-                            decryptedString = decryptedString.Replace('-', '+');
-                            decryptedString = decryptedString.Replace('_', '/');
-
-                            string outputFilePath = modifiedString + "dec" + "."+ matchExt.Groups[1].Value;
-                            byte[] pdfBytes = Convert.FromBase64String(decryptedString);
 
 
-                            string outputPath = Path.Combine(directoryPath, outputFilePath);
-                            File.WriteAllBytes(outputPath, pdfBytes);
-                        }
-                        else
-                            throw new IOException("File name has been altered.");
+
+                        // Decrypt the string using the key
+
+                        string outputFilePath = modifiedString + "dec" + "." + matchExt.Groups[1].Value;
+
+
+                        string outputPath = Path.Combine(directoryPath, outputFilePath);
+                        File.WriteAllText(outputPath, fileContentNRMString);
+
                     }
                     else
                         throw new IOException("File name has been altered.");
@@ -220,7 +205,172 @@ namespace ManOWarEncLibrary
 
 
         /// <summary>
-        /// EncryptMaster
+        /// EncryptMaster_v2
+        /// </summary>
+        /// <param name="callerCode"></param>
+        /// <param name="truncatedDateTime"></param>
+        /// <param name="frequency"></param>
+        /// <param name="secrateKey"></param>
+        /// <param name="oriTextBlock"></param>
+        /// <returns></returns>
+        public Tuple<string, int> EncryptMaster_v2(string callerCode, DateTime truncatedDateTime, string frequency, string secrateKey, string oriTextBlock)
+        {
+            var tplVar = new Tuple<string, int>(string.Empty, 0);
+            try
+            {
+                string timestamp = truncatedDateTime.ToString("yyyyMMddHH");
+                timestamp = encryptSimple(timestamp);
+                string key = encryptSimple(callerCode + timestamp + frequency + secrateKey);
+                key = Convert.ToBase64String(Encoding.UTF8.GetBytes(key));
+
+                string filePathEnc = Path.Combine(Environment.CurrentDirectory, "LogFile/EncData.txt");
+
+                string myOriginalValue = oriTextBlock;
+                // Specify the block size (128 bits = 16 bytes)
+                int blockSize = 16;
+
+                // Create a list to store the 128-bit blocks
+                List<string> ObjlstCls128Bit = new List<string>();
+
+                int loopCounter = 0;
+                string concatenatedString = string.Empty;
+                string paraEnc = string.Empty;
+                int paraLength = 0;
+
+                using (StreamWriter writer = new StreamWriter(filePathEnc))
+                {
+                    for (int i = 0; i < myOriginalValue.Length; i += blockSize)
+                    {
+                        loopCounter += 1;
+                        // Get a substring of the original string with the specified block size
+                        string block = myOriginalValue.Substring(i, Math.Min(blockSize, myOriginalValue.Length - i));
+
+                        if (block.Length < blockSize)
+                        {
+                            block = block.PadRight(blockSize, '\0'); // You can choose a different padding character or scheme
+                        }
+                        block = EncryptStringBasic(block, key);
+
+                        var ss = DecryptStringBasic(block, key);
+
+                        ObjlstCls128Bit.Add(block);
+                        //Console.WriteLine("overse : " + block);
+                    }
+                    paraEnc = encryptSimple(key.Length.ToString() + "|" + key);
+                    byte[] byteArray_paraEnc = Encoding.UTF8.GetBytes(paraEnc);
+                    string base64String_paraEnc = Convert.ToBase64String(byteArray_paraEnc);
+
+                    paraLength = base64String_paraEnc.Length;
+
+                    ObjlstCls128Bit.Add(base64String_paraEnc);
+                    concatenatedString = string.Join("", ObjlstCls128Bit);
+                    writer.WriteLine(concatenatedString);
+                }
+                tplVar = new Tuple<string, int>(Base64Encode(concatenatedString), paraLength);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return tplVar;
+        }
+
+
+        /// <summary>
+        /// DecryptMaster_v2
+        /// </summary>
+        /// <param name="strEncrypted"></param>
+        /// <param name="revParaLength"></param>
+        /// <returns></returns>
+        public string DecryptMaster_v2(string strEncrypted, int revParaLength)
+        {
+            string resultString = string.Empty;
+            try
+            {
+                string filePathDec = Path.Combine(Environment.CurrentDirectory, "LogFile/DecData.txt");
+
+                string timestamp = DateTime.Now.ToString("yyyyMMddHH");
+                timestamp = encryptSimple(timestamp);
+
+                byte[] byteArray_A = Convert.FromBase64String(strEncrypted);
+                string strEncrypted_A = System.Text.Encoding.UTF8.GetString(byteArray_A);
+
+
+                int substringStartIndex = Math.Max(0, strEncrypted_A.Length - revParaLength);
+                string EncryptPara = strEncrypted_A.Substring(substringStartIndex);
+
+                byte[] byteArray = Convert.FromBase64String(EncryptPara);
+                // Convert the byte array to a string
+                EncryptPara = Encoding.UTF8.GetString(byteArray);
+
+                string EncryptPara_A = decryptSimple(EncryptPara);
+
+                string[] strArrayKeys = EncryptPara_A.Split('|');
+
+                int encKeyLength = 0;
+                string pkey = string.Empty;
+                int numberOfBlocks = 0;
+                string encKey = string.Empty;
+                if (strArrayKeys.Length > 0)
+                {
+                    encKeyLength = int.Parse(strArrayKeys[0].ToString());
+                    pkey = strArrayKeys[1].ToString();
+                    numberOfBlocks = int.Parse(strArrayKeys[0].ToString());
+                    encKey = Encoding.UTF8.GetString(Convert.FromBase64String(strArrayKeys[1].ToString()));
+                }
+
+
+                int substringLength = Math.Max(0, strEncrypted_A.Length - revParaLength);
+                string strEncrypted_B = strEncrypted_A.Substring(0, substringLength);
+
+
+                // Create a list to store the small parts
+                List<string> partsList = new List<string>();
+
+
+                // Calculate the size of each part
+                int partSize = (int)Math.Ceiling((double)strEncrypted_B.Length / numberOfBlocks);
+
+
+                using (StreamWriter writer = new StreamWriter(filePathDec))
+                {
+                    for (int i = 0; i < strEncrypted_B.Length; i += partSize)
+                    {
+                        // Get a substring of the original string with the specified part size
+                        string part = strEncrypted_B.Substring(i, Math.Min(partSize, strEncrypted_B.Length - i));
+                        // Add the part to the list
+
+                        string temppart = string.Empty;
+                        // block = Encrypt(encryptSimple(block+ key), true, key);
+
+                        temppart = DecryptStringBasic(part, pkey);
+
+                        part = temppart;
+
+                        partsList.Add(part);
+                    }
+
+                    resultString = string.Join("", partsList);
+
+                    resultString = resultString.Replace("\0", "");
+
+                    writer.WriteLine(resultString);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return resultString;
+        }
+
+
+
+
+
+
+        /// <summary>
+        /// EncryptMaster_v1
         /// </summary>
         /// <param name="callerCode"></param>
         /// <param name="truncatedDateTime"></param>
@@ -228,7 +378,7 @@ namespace ManOWarEncLibrary
         /// <param name="key"></param>
         /// <param name="oriTextBlock"></param>
         /// <returns></returns>
-        public Tuple<string, int> EncryptMaster(string callerCode, DateTime truncatedDateTime, string frequency, string secrateKey, string oriTextBlock)
+        public Tuple<string, int> EncryptMaster_v1(string callerCode, DateTime truncatedDateTime, string frequency, string secrateKey, string oriTextBlock)
         {
             var tplVar = new Tuple<string, int>(string.Empty, 0);
             try
@@ -248,6 +398,7 @@ namespace ManOWarEncLibrary
                 // Create a list to store the 128-bit blocks
                 List<string> ObjlstCls128Bit = new List<string>();
 
+                //enc dbl
                 key = Encrypt(Convert.ToBase64String(Encoding.UTF8.GetBytes(key)), true, _pk);
 
                 int loopCounter = 0;
@@ -293,12 +444,12 @@ namespace ManOWarEncLibrary
         }
 
         /// <summary>
-        /// DecryptMaster
+        /// DecryptMaster_v1
         /// </summary>
         /// <param name="strEncrypted"></param>
         /// <param name="revParaLength"></param>
         /// <returns></returns>
-        public string DecryptMaster(string strEncrypted, int revParaLength)
+        public string DecryptMaster_v1(string strEncrypted, int revParaLength)
         {
             string resultString = string.Empty;
             try
@@ -380,6 +531,92 @@ namespace ManOWarEncLibrary
                 throw ex;
             }
             return resultString;
+        }
+
+
+
+
+        /// <summary>
+        /// EncryptStringBasic
+        /// </summary>
+        /// <param name="plainText"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string EncryptStringBasic(string plainText, string key)
+        {
+            byte[] inputBytes = Encoding.UTF8.GetBytes(plainText);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+
+            for (int i = 0; i < inputBytes.Length; i++)
+            {
+                inputBytes[i] = (byte)(inputBytes[i] ^ keyBytes[i % keyBytes.Length]);
+            }
+
+            return Convert.ToBase64String(inputBytes);
+
+
+            //using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
+            //{
+            //    aesAlg.Key = Encoding.UTF8.GetBytes(key);
+            //    aesAlg.GenerateIV();
+
+            //    ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+            //    using (MemoryStream msEncrypt = new MemoryStream())
+            //    {
+            //        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+            //        {
+            //            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+            //            {
+            //                swEncrypt.Write(plainText);
+            //            }
+            //        }
+
+            //        return Convert.ToBase64String(aesAlg.IV.Concat(msEncrypt.ToArray()).ToArray());
+            //    }
+            //}
+        }
+
+        /// <summary>
+        /// DecryptStringBasic
+        /// </summary>
+        /// <param name="cipherText"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string DecryptStringBasic(string cipherText, string key)
+        {
+            byte[] encryptedBytes = Convert.FromBase64String(cipherText);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+
+            for (int i = 0; i < encryptedBytes.Length; i++)
+            {
+                encryptedBytes[i] = (byte)(encryptedBytes[i] ^ keyBytes[i % keyBytes.Length]);
+            }
+
+            return Encoding.UTF8.GetString(encryptedBytes);
+
+            //using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
+            //{
+            //    aesAlg.Key = Encoding.UTF8.GetBytes(key);
+
+            //    byte[] cipherTextBytes = Convert.FromBase64String(cipherText);
+
+            //    aesAlg.IV = cipherTextBytes.Take(16).ToArray();
+            //    cipherTextBytes = cipherTextBytes.Skip(16).ToArray();
+
+            //    ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+            //    using (MemoryStream msDecrypt = new MemoryStream(cipherTextBytes))
+            //    {
+            //        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+            //        {
+            //            using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+            //            {
+            //                return srDecrypt.ReadToEnd();
+            //            }
+            //        }
+            //    }
+            //}
         }
 
 

@@ -276,7 +276,8 @@ namespace Digi_Com.AppForms
                         _db.writeLog("Incoming call from " + _db.getStationByStationCode(CallerID.ToString()));
                         //Invoke Main Thread and Update Info to UI
                         //Verify Receiver
-                        this.BeginInvoke(new Action(delegate () {
+                        this.BeginInvoke(new Action(delegate ()
+                        {
                             //Incoming Call
                             wplayer.URL = "ringtone.mp3";
                             wplayer.controls.play();
@@ -456,7 +457,8 @@ namespace Digi_Com.AppForms
                             int i;
 
                             // Console.WriteLine(bytes.Length/2);
-                            for (i = 0; i < bytes.Length; i = i + 2048)
+                            //for (i = 0; i < bytes.Length; i = i + 2048)
+                            for (i = 0; i < bytes.Length; i = i + 18432) // 18KB
                             {
                                 int d = bytes.Length - i;
                                 if (d < 2046)
@@ -470,7 +472,6 @@ namespace Digi_Com.AppForms
                                     Array.Copy(bytes, i, b2, 0, b2.Length);
                                     Trport.Write(b2, 0, b2.Length);
                                     Thread.Sleep(100);
-
                                 }
 
                                 //serialPort1.Write(b1, 0, b1.Length);
@@ -759,7 +760,7 @@ namespace Digi_Com.AppForms
                     item.SubItems.Add(row["logtext"].ToString());
                     lvLogs.Items.Add(item);
                 }
-                               
+
             }
             catch (Exception ex)
             {
