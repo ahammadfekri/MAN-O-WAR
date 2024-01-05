@@ -106,23 +106,27 @@ namespace ManOWarEncLibrary
                 if (File.Exists(inputFileFullPath))
                 {
                     fileOriginal = new FileInfo(inputFileFullPath);
-
-                    string inputWavFilePath = "path/to/your/inputfile.wav";
-
-                    // Specify the path for the output WAV file
-                    string outputWavFilePath = "path/to/your/outputfile.wav";
-
-                    string txtFileTring = File.ReadAllText(fileOriginal.FullName);
+                    encryptedString = File.ReadAllText(fileOriginal.FullName);
 
                     directoryPath = fileOriginal.Directory.FullName;
                     fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileOriginal.FullName);
                     fileExtension = Path.GetExtension(fileOriginal.FullName);
                     fileSize = fileOriginal.Length;
 
-                    string outputPath = Path.Combine(directoryPath, fileNameWithoutExtension + "_FR#" + fileExtension + "_#RF" + "_SE#" + "___" + "#AT_" + ".aes");
 
-                    File.WriteAllText(outputPath, txtFileTring);
+                    // Encrypt the string using the key
+                    var finalEncryptedString = EncryptMaster_v2(callerCode, truncatedDateTime, frequency, secrateKey, encryptedString);
 
+
+
+                    string outputPath = Path.Combine(directoryPath, 
+                        fileNameWithoutExtension + "_FR#" + fileExtension + "_#RF" + "_SE#" + 
+                        finalEncryptedString.Item2.ToString() + "#AT_" + ".m-o-war");
+
+
+                    // Write the encrypted string to a file with a custom extension
+                    
+                    File.WriteAllText(outputPath, finalEncryptedString.Item1);
                     strReturnValue = outputPath;
                 }
             }
@@ -158,26 +162,6 @@ namespace ManOWarEncLibrary
 
                 if (File.Exists(inputFileFullPath))
                 {
-
-
-                   
-
-
-
-
-                    string fileContentNRMString = File.ReadAllText(fileOriginal.FullName);
-
-                    char[] charArray = fileContentNRMString.ToCharArray();
-                    Array.Reverse(charArray);
-                    string reversedContent = new string(charArray);
-
-
-
-                    // Write the reversed content to the output file
-                   
-
-
-
                     fileOriginal = new FileInfo(inputFileFullPath);
                     byte[] fileBytes = File.ReadAllBytes(fileOriginal.FullName);
                     encryptedString = Encoding.UTF8.GetString(fileBytes);
@@ -201,24 +185,25 @@ namespace ManOWarEncLibrary
 
                         string modifiedString = fileNameWithoutExtension.Replace(match.Value, "");
 
+                        if (keyParts.Length > 0)
+                        {
+                            revParaLength = int.Parse(keyParts);
+
+                            // Decrypt the string using the key
+                            string decryptedString = DecryptMaster_v2(encryptedString, revParaLength);
+
+                            decryptedString = decryptedString.Replace('-', '+');
+                            decryptedString = decryptedString.Replace('_', '/');
+
+                            string outputFilePath = modifiedString + "dec" + "." + matchExt.Groups[1].Value;
+                            byte[] pdfBytes = Convert.FromBase64String(decryptedString);
 
 
-
-                        // Decrypt the string using the key
-
-                        string outputFilePath = modifiedString + "dec" + "." + matchExt.Groups[1].Value;
-
-
-                        string outputPath = Path.Combine(directoryPath, outputFilePath);
-                        //File.WriteAllText(outputPath, fileContentNRMString);
-
-
-                        byte[] reversedBytes = Encoding.UTF8.GetBytes(reversedContent);
-
-                        // Write the reversed byte array to the output WAV file
-                        File.WriteAllBytes(outputPath, reversedBytes);
-
-
+                            string outputPath = Path.Combine(directoryPath, outputFilePath);
+                            File.WriteAllBytes(outputPath, pdfBytes);
+                        }
+                        else
+                            throw new IOException("File name has been altered.");
                     }
                     else
                         throw new IOException("File name has been altered.");
@@ -245,7 +230,12 @@ namespace ManOWarEncLibrary
         /// <param name="secrateKey"></param>
         /// <param name="oriTextBlock"></param>
         /// <returns></returns>
-        public Tuple<string, int> EncryptMaster_v2(string callerCode, DateTime truncatedDateTime, string frequency, string secrateKey, string oriTextBlock)
+        public Tuple<string, int> EncryptMaster_v2(
+            string callerCode, 
+            DateTime truncatedDateTime, 
+            string frequency, 
+            string secrateKey, 
+            string oriTextBlock)
         {
             var tplVar = new Tuple<string, int>(string.Empty, 0);
             try
@@ -288,6 +278,7 @@ namespace ManOWarEncLibrary
                         ObjlstCls128Bit.Add(block);
                         //Console.WriteLine("overse : " + block);
                     }
+
                     paraEnc = encryptSimple(key.Length.ToString() + "|" + key);
                     byte[] byteArray_paraEnc = Encoding.UTF8.GetBytes(paraEnc);
                     string base64String_paraEnc = Convert.ToBase64String(byteArray_paraEnc);

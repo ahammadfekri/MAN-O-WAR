@@ -139,8 +139,7 @@ namespace Digi_Com.AppForms
             DataTable _data = _db.getScheduleListByDate(DateTime.Now.ToString("yyyy-MM-dd"));
             foreach (DataRow row in _data.Rows)
             {
-
-                string callerCode = Global.personel_fingre_key_no;
+                string callerCode = Global.ReceivedCallerID;// Global.personel_fingre_key_no;
                 DateTime truncatedDateTime = DateTime.Now;
                 string frequency = row["SCHEDULE_FREQ"].ToString();
                 secrateKey = row["SCHEDULE_SECRET"].ToString();

@@ -24,23 +24,25 @@ namespace testApp
             string frequency = "FRE0091";
             string secrateKey = "secretKey";
 
-            Console.WriteLine("Starting encryption process.");
+            //Console.WriteLine("Starting encryption process.");
 
-            var blockByte = objEncDec2.EncryptMaster_v2(callerCode, truncatedDateTime, frequency, secrateKey, originalStr);
+            //var blockByte = objEncDec2.EncryptMaster_v2(callerCode, truncatedDateTime, frequency, secrateKey, originalStr);
 
-            Console.WriteLine("Time to encrypte: " + DateTime.Now.ToString("HH mm ss"));
-            Console.WriteLine("Starting decryption process.");
-            var decString = objEncDec2.DecryptMaster_v2(blockByte.Item1, blockByte.Item2);
-            Console.WriteLine("Time to decrypte: " + DateTime.Now.ToString("HH mm ss"));
-
-            //string filePath = @"C:\CF\sampleFile\Free_Test_Data_100KB_PDF.pdf";
-
-            //objEncDec2.FileEncrypt(filePath, callerCode, truncatedDateTime, frequency, secrateKey);
+            //Console.WriteLine("Time to encrypte: " + DateTime.Now.ToString("HH mm ss"));
+            //Console.WriteLine("Starting decryption process.");
+            //var decString = objEncDec2.DecryptMaster_v2(blockByte.Item1, blockByte.Item2);
+            //Console.WriteLine("Time to decrypte: " + DateTime.Now.ToString("HH mm ss"));
 
 
-            //string filePath2 = @"C:\CF\sampleFile\Free_Test_Data_100KB_PDF_SE#444#AT_.m-o-war";
 
-            //objEncDec2.FileDeccrypt(filePath2);
+            string filePath = @"C:\Users\rezay\Music\DGCOM Recordings\Sample-1.txt";
+
+            objEncDec2.FileEncrypt(filePath, callerCode, truncatedDateTime, frequency, secrateKey);
+
+
+            string filePath2 = @"C:\Users\rezay\Music\DGCOM Recordings\Sample-1_FR#.txt_#RF_SE#136#AT_.m-o-war";
+
+            objEncDec2.FileDeccrypt(filePath2);
 
             objEncDec2.Dispose();
 

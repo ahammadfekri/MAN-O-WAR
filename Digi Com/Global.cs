@@ -131,6 +131,13 @@ namespace Digi_Com
         }
 
 
+
+        private static string _receivedCallerID = "";
+        public static string ReceivedCallerID
+        {
+            get { return _receivedCallerID; }
+            set { _receivedCallerID = value; }
+        }
         public static string GetTimestamp
         {
             get { return _currentTimestamp; }

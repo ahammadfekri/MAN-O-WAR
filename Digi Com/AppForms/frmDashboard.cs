@@ -354,6 +354,7 @@ namespace Digi_Com.AppForms
                     if (Convert.ToInt32(code) == 300)
                     {
                         Global.isCallReceived = true;
+                        Global.ReceivedCallerID = CallerID.ToString();
                         _db.writeLog("Call accepted by  " + CallerID.ToString());
                         this.BeginInvoke(new Action(delegate ()
                         {
@@ -605,8 +606,6 @@ namespace Digi_Com.AppForms
                     int bytes = Trport.BytesToRead;
                     byte[] byte_buffer = new byte[bytes];
                     Trport.Read(byte_buffer, 0, bytes);
-
-
                     Display(byte_buffer);
 
 
@@ -629,9 +628,7 @@ namespace Digi_Com.AppForms
 
                 using (FS = new FileStream(outputFilename + ".aes", FileMode.Append, FileAccess.Write))
                 {
-
                     receivedLength = receivedLength + inputData.Length;
-
 
                     FS.Write(inputData, 0, inputData.Length);
 
