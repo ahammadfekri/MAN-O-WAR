@@ -107,6 +107,26 @@ namespace ManOWarEncLibrary
                 {
                     fileOriginal = new FileInfo(inputFileFullPath);
 
+                    string inputWavFilePath = "path/to/your/inputfile.wav";
+
+                    // Specify the path for the output WAV file
+                    string outputWavFilePath = "path/to/your/outputfile.wav";
+
+                    byte[] wavFileBytes = File.ReadAllBytes(fileOriginal.FullName);
+
+                    // Convert the byte array to a string (This might not produce meaningful results)
+                    string wavFileContent = Encoding.UTF8.GetString(wavFileBytes);
+
+
+
+
+                    byte[] fileBytes = File.ReadAllBytes(fileOriginal.FullName);
+
+                    // Convert the byte array to a string
+                    string fileContent = Encoding.UTF8.GetString(fileBytes);
+
+
+
                     string fileContentNRMString = File.ReadAllText(fileOriginal.FullName);
 
                     directoryPath = fileOriginal.Directory.FullName;
@@ -114,9 +134,9 @@ namespace ManOWarEncLibrary
                     fileExtension = Path.GetExtension(fileOriginal.FullName);
                     fileSize = fileOriginal.Length;
 
-                    string outputPath = Path.Combine(directoryPath, fileNameWithoutExtension + "_FR#" + fileExtension + "_#RF" + "_SE#" + "___" + "#AT_" + ".m-o-war");
+                    string outputPath = Path.Combine(directoryPath, fileNameWithoutExtension + "_FR#" + fileExtension + "_#RF" + "_SE#" + "___" + "#AT_" + ".aes");
 
-                    File.WriteAllText(outputPath, fileContentNRMString);
+                    File.WriteAllText(outputPath, wavFileContent);
                     strReturnValue = outputPath;
                 }
             }
@@ -152,7 +172,26 @@ namespace ManOWarEncLibrary
 
                 if (File.Exists(inputFileFullPath))
                 {
+
+
+                   
+
+
+
+
                     string fileContentNRMString = File.ReadAllText(fileOriginal.FullName);
+
+                    char[] charArray = fileContentNRMString.ToCharArray();
+                    Array.Reverse(charArray);
+                    string reversedContent = new string(charArray);
+
+
+
+                    // Write the reversed content to the output file
+                   
+
+
+
                     fileOriginal = new FileInfo(inputFileFullPath);
                     byte[] fileBytes = File.ReadAllBytes(fileOriginal.FullName);
                     encryptedString = Encoding.UTF8.GetString(fileBytes);
@@ -185,7 +224,14 @@ namespace ManOWarEncLibrary
 
 
                         string outputPath = Path.Combine(directoryPath, outputFilePath);
-                        File.WriteAllText(outputPath, fileContentNRMString);
+                        //File.WriteAllText(outputPath, fileContentNRMString);
+
+
+                        byte[] reversedBytes = Encoding.UTF8.GetBytes(reversedContent);
+
+                        // Write the reversed byte array to the output WAV file
+                        File.WriteAllBytes(outputPath, reversedBytes);
+
 
                     }
                     else
